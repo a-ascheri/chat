@@ -1,0 +1,15 @@
+// Copia los estilos existentes aquí o agrega los que necesites
+.channelListContainer ul {
+  list-style: none;
+  padding: 0;
+}
+
+.channelListContainer li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.active {
+  font-weight: bold;
+  color: #2d8cff;
+}
