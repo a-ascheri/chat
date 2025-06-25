@@ -19,6 +19,11 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat.send")
     public void sendMessage(ChatMessage message) {
+        // Guardar mensaje en la lista de historial del canal
+        String redisKey = "chat:messages:" + message.getChannel();
+        redisTemplate.opsForList().rightPush(redisKey, message);
+        // Limitar historial a 100 mensajes por canal
+        redisTemplate.opsForList().trim(redisKey, -100, -1);
         // Publicar mensaje en Redis para distribuirlo (incluye canal)
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }

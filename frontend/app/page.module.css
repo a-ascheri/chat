@@ -6,13 +6,13 @@
   --button-primary-hover: #383838;
   --button-secondary-hover: #f2f2f2;
 
-  display: grid;
-  grid-template-rows: 20px 1fr 20px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-items: center;
-  min-height: 100svh;
-  padding: 80px;
-  gap: 64px;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 32px 0 24px 0;
+  gap: 32px;
   font-family: var(--font-geist-sans);
 }
 
@@ -165,4 +165,30 @@ a.secondary {
   .logo {
     filter: invert();
   }
+}
+
+.layoutRow {
+  display: flex;
+  flex-direction: row;
+  width: 900px;
+  min-height: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+.channelCol {
+  width: 220px;
+  background: #f4f6fa;
+  border-right: 1px solid #e0e0e0;
+  padding: 2.5rem 1rem 1rem 1rem;
+  min-height: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.chatCol {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  min-width: 0;
 }

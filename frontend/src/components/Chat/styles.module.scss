@@ -30,6 +30,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0;
+  width: 100%;
 }
 
 .user {
@@ -44,4 +45,18 @@
 .timestamp {
   font-size: 0.8em;
   color: #888;
+}
+
+.messagesBox {
+  height: 350px;
+  width: 100%;
+  max-width: 520px;
+  min-width: 320px;
+  overflow-y: auto;
+  background: #f8f8f8;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  word-break: break-word;
 }

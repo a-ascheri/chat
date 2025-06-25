@@ -20,7 +20,7 @@ const Chat: React.FC = () => {
 
   return (
     <div className={styles.chatContainer}>
-      <div>
+      <div className={styles.messagesBox}>
         {messages.map((msg, idx) => (
           <Message key={idx} {...msg} />
         ))}
