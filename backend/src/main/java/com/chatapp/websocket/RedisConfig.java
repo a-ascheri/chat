@@ -1,3 +1,8 @@
+// [5] RedisConfig.java
+// Configuración de Redis, serializadores y topic.
+// QUIÉN LO USA: Spring Boot al iniciar la app.
+// Permite que Redis almacene mensajes y notifique a los listeners.
+
 package com.chatapp.websocket;
 
 import org.springframework.context.annotation.Bean;
@@ -11,7 +16,9 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+
 public class RedisConfig {
+    
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();

@@ -1,3 +1,8 @@
+// [6] WebSocketConfig.java
+// Configuración de WebSocket y STOMP endpoints.
+// QUIÉN LO USA: Spring Boot al iniciar la app.
+// Permite que los clientes se conecten por WebSocket y usen STOMP para mensajería.
+
 package com.chatapp.websocket;
 
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +14,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    
     @Override
     public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
