@@ -20,11 +20,23 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Debe envolver a toda la app (en layout o _app)
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   
-  // [2.4] Estado local para el nombre de usuario
-  // Sintaxis: const [username, setUsername] = useState('');
-  const [username, setUsername] = useState('');
-  
-  // [2.5] Provee el valor del contexto a los hijos
+  // [2.4] Estado local para el nombre de usuario, persistente en localStorage
+  const [username, setUsernameState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('chat_username') || '';
+    }
+    return '';
+  });
+
+  // [2.5] setUsername que guarda en localStorage
+  const setUsername = (name: string) => {
+    setUsernameState(name);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('chat_username', name);
+    }
+  };
+
+  // [2.6] Provee el valor del contexto a los hijos
   return (
     <UserContext.Provider value={{ username, setUsername }}>
       {children}
