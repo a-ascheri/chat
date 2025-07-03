@@ -1,8 +1,0 @@
-com/chatapp/model/ChatMessage.class
-com/chatapp/api/HelloController.class
-com/chatapp/websocket/WebSocketConfig.class
-com/chatapp/websocket/ChatWebSocketController.class
-com/chatapp/websocket/RedisConfig.class
-com/chatapp/websocket/RedisListenerConfig.class
-com/chatapp/ChatApplication.class
-com/chatapp/websocket/RedisMessageSubscriber.class

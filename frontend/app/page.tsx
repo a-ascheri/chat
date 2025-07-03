@@ -66,9 +66,10 @@ export default HomePage;
 // El componente utiliza un diseño de fila para organizar los componentes en columnas
 // y se asegura de que la interfaz sea responsiva y fácil de usar
 
-// =====================
+// ==============================================
 // DIAGRAMA DEL FLUJO COMPLETO FRONTEND + BACKEND
-// =====================
+// ==============================================
+
 /*
 ┌─────────────────────────────┐
 │        FRONTEND (React)     │
@@ -125,9 +126,10 @@ export default HomePage;
                    [6] Chat/index.tsx recibe mensaje en tiempo real
 */
 
-// =====================
+// ======================================
 // RESUMEN DE PUNTOS CLAVE DE CADA BLOQUE
-// =====================
+// ======================================
+
 /*
 [1] page.tsx: Punto de entrada visual. Decide si mostrar login o chat según el usuario.
 [2] UserContext.tsx: Contexto global para el usuario (login, setUsername, username).
@@ -140,5 +142,76 @@ export default HomePage;
 [BACKEND 2] ChatWebSocketController.java: Recibe mensajes por WebSocket, los guarda y publica en Redis.
 [BACKEND 3] RedisMessageSubscriber.java: Escucha mensajes en Redis y los reenvía a los clientes WebSocket.
 */
-// =====================
 
+/*
+============================
+1. Frontend (Next.js/React):
+
+a) Login y Usuario
+El usuario ingresa su nombre en el formulario de login (index.tsx).
+El nombre se guarda en el contexto global (UserContext.tsx) y en localStorage para persistencia.
+Si el usuario ya está guardado, se salta el login y entra directo al chat.
+
+b) Canales y Mensajes
+El usuario selecciona un canal (por ejemplo, “General”).
+Al entrar a un canal, el frontend hace un fetch al backend para obtener el historial de mensajes de ese canal (REST API).
+El frontend se conecta por WebSocket (STOMP/SockJS) al backend para recibir mensajes en tiempo real.
+
+c) Envío y Recepción de Mensajes
+Cuando el usuario envía un mensaje, este se publica por WebSocket al backend.
+Cuando el backend recibe un mensaje nuevo (de cualquier usuario), lo reenvía a todos los clientes suscritos al canal correspondiente.
+El frontend actualiza la UI en tiempo real al recibir mensajes nuevos.
+
+=========================
+2. Backend (Spring Boot):
+
+a) Autenticación
+Usa HTTP Basic Auth: el frontend envía el header Authorization en cada request y en la conexión WebSocket.
+No hay sesiones ni cookies, solo autenticación por header.
+
+b) CORS
+Solo permite peticiones desde el dominio público de tu frontend (ngrok).
+Permite headers de autenticación y credenciales.
+
+c) REST API
+Endpoint /api/messages/{channel}: devuelve el historial de mensajes de un canal (usado al entrar a un canal).
+Los mensajes se almacenan en Redis (o en memoria, según tu implementación).
+
+d) WebSocket (STOMP/SockJS)
+Endpoint /ws: permite conexiones WebSocket desde el frontend.
+Los clientes se suscriben a /topic/messages.
+Cuando un usuario envía un mensaje, el backend lo recibe y lo publica a todos los clientes suscritos.
+
+================================
+3. Comunicación y Flujo General:
+
+Login:
+Usuario → Frontend (nombre) → Contexto global/localStorage
+
+Entrar a canal:
+Frontend → Backend (fetch historial) → Muestra mensajes
+Frontend → Backend (WebSocket) → Suscripción a mensajes en tiempo real
+
+Enviar mensaje:
+Frontend → Backend (WebSocket)
+Backend → Todos los clientes (WebSocket broadcast)
+
+Recibir mensaje:
+Backend → Frontend (WebSocket)
+Frontend → Actualiza UI en tiempo real
+
+=========================================
+4. Infraestructura (ngrok, WSL, puertos):
+
+ngrok expone tanto el frontend como el backend a internet.
+El backend y frontend están configurados para aceptar solo los orígenes correctos.
+Todo el tráfico (REST y WebSocket) pasa por ngrok, permitiendo acceso desde cualquier lugar.
+
+=========================
+5. Persistencia y Estado:
+
+El usuario se mantiene logueado gracias a localStorage.
+Los mensajes se almacenan en Redis (o en memoria).
+El frontend mantiene el estado de los mensajes por canal en caché para eficiencia.
+
+*/
