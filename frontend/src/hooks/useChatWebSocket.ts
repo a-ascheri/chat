@@ -14,8 +14,8 @@ export interface ChatMessage {
 }
 
 // [7.2] Constantes de URL para WebSocket y API REST
-const WS_URL = 'https://66b3-181-170-213-106.ngrok-free.app/ws';
-const API_URL = 'https://66b3-181-170-213-106.ngrok-free.app/api/messages';
+const WS_URL = 'https://192.168.0.156:8080/ws';
+const API_URL = 'https://192.168.0.156:8080/api/messages';
 
 // [7.3] Hook principal
 export function useChatWebSocket(username: string) {
@@ -38,15 +38,13 @@ export function useChatWebSocket(username: string) {
   // Este efecto se ejecuta cada vez que cambia el canal (loop reactivo)
   useEffect(() => {
     if (!channel) return;
-    fetch(`${API_URL}/${channel}`, {
-      headers: {
-        'Authorization': 'Basic ' + btoa('admin:admin123')
-      }
-    })
+    fetch(`${API_URL}/${channel}`)
       .then(res => res.json())
       .then((data: ChatMessage[]) => {
+        
         // Mensajes en tiempo real que hayan llegado mientras se hacía fetch
         const liveMessages = messagesCache.current[channel] || [];
+        
         // Combinar historial y mensajes en tiempo real, evitando duplicados por timestamp+user+content
         const allMessages = [...data, ...liveMessages].filter((msg, idx, arr) =>
           arr.findIndex(m => m.timestamp === msg.timestamp && m.user === msg.user && m.content === msg.content) === idx
@@ -64,9 +62,6 @@ export function useChatWebSocket(username: string) {
     const client = new Client({
       webSocketFactory: () => new SockJS(WS_URL),
       reconnectDelay: 5000,
-      connectHeaders: {
-        'Authorization': 'Basic ' + btoa('admin:admin123')
-      }
     });
     client.onConnect = () => {
       client.subscribe('/topic/messages', (msg: IMessage) => {
@@ -78,6 +73,7 @@ export function useChatWebSocket(username: string) {
             return updated;
           });
         } else {
+          
           // Si el mensaje es de otro canal, agrégalo al cache de ese canal
           messagesCache.current[message.channel] = [
             ...(messagesCache.current[message.channel] || []),
@@ -141,33 +137,20 @@ export function useChatWebSocket(username: string) {
 // ================================
 //    Tu servidor Next.js y Spring Boot están corriendo dentro de WSL, pero WSL2 NO expone los puertos automáticamente a la red local.
 //    Por eso, desde el teléfono o desde Windows, no puedes acceder a los puertos de WSL usando la IP 192.168.0.156.
-
 // 1. Asegúrate de que tu servidor esté escuchando en todas las interfaces
 //    de red, no solo en localhost. Esto se puede hacer configurando el servidor para
 //    escuchar en `0.0.0.0`. configura tu servidor para que escuche en todas las interfaces:
 //    - Para Next.js, puedes iniciar el servidor con `npx next dev --hostname 0.0.0.0`
 //    - Para Express, puedes usar `app.listen(3000, '0.0.0.0')`
-
 // 2. Configura el WebSocket para que use la dirección IP de tu máquina en la red local.
 //    - Cambia la URL del WebSocket a `ws://<tu-ip-local>:8080/ws`
 //    - const WS_URL = 'http://192.168.0.156:8080/ws';
 //    - const API_URL = 'http://192.168.0.156:8080/api/messages';
 //    - Asegúrate de que el servidor WebSocket esté configurado para aceptar conexiones desde esa IP.
-
 // 3. Si estás detrás de un firewall o router, asegúrate de que los puertos necesarios estén abiertos.
 //    - Por ejemplo, si tu WebSocket está en el puerto 8080, asegúrate de que ese puerto esté abierto 
 //      en el firewall y redirigido correctamente si es necesario.
-
-// 4. Verifica la IP de tu máquina en la red local:
-//    - Puedes usar el comando `ip addr` en WSL para ver la IP asignada a tu interfaz de red.
-//    - Busca la línea que dice `inet` y muestra la IP de la interfaz que estás usando (por ejemplo, `eth0`).
-//    - Asegúrate de que la IP sea accesible desde otros dispositivos en la red local.
-//    - Si estás usando WSL2, la IP de tu máquina puede cambiar cada vez que inicias WSL.
-//    - Puedes usar el comando `ip addr` para ver la IP actual de tu máquina (en WSL).
-//    - Busca la línea que dice `inet` y muestra la IP de la interfaz que estás usando (por ejemplo, `eth0`).
-//    - Asegúrate de que la IP sea accesible desde otros dispositivos en la red local.
-
-// 5. Exponer puertos de WSL a la red local:
+// 4. Exponer puertos de WSL a la red local:
 //    - Si estás utilizando WSL, es posible que también necesites exponer los puertos de tu servidor
 //    en la configuración de WSL.
 //    Puedes hacer esto ejecutando comandos como:
@@ -183,23 +166,27 @@ export function useChatWebSocket(username: string) {
 //      port: 8080
 //      address: 0.0.0.0 # Permite el acceso desde cualquier dirección IP
 //    ```
-
+// 5. Verifica la IP de tu máquina en la red local:
+//    - Puedes usar el comando `ip addr` en WSL para ver la IP asignada a tu interfaz de red.
+//    - Busca la línea que dice `inet` y muestra la IP de la interfaz que estás usando (por ejemplo, `eth0`).
+//    - Asegúrate de que la IP sea accesible desde otros dispositivos en la red local.
+//    - Si estás usando WSL2, la IP de tu máquina puede cambiar cada vez que inicias WSL.
+//    - Puedes usar el comando `ip addr` para ver la IP actual de tu máquina (en WSL).
+//    - Busca la línea que dice `inet` y muestra la IP de la interfaz que estás usando (por ejemplo, `eth0`).
+//    - Asegúrate de que la IP sea accesible desde otros dispositivos en la red local.
 // 6. Prueba la conexión desde otro dispositivo:
 //    - Desde otro dispositivo en la misma red local (como tu teléfono), intenta acceder a
 //      la URL del WebSocket y la API REST usando la IP de tu máquina.
 //    - Por ejemplo, si tu IP es `192.168.0.156`, las URLs serían:
 //      - WebSocket: `ws://192.168.0.156:8080/ws`
 //      - API REST: `http://192.168.0.156:8080/api/messages`
-
 // 7. Verifica que el firewall de tu máquina no esté bloqueando las conexiones entrantes
 //    - Asegúrate de que el firewall de tu máquina permita conexiones entrantes en los puertos
 //      que estás utilizando (por ejemplo, 8080 para WebSocket y API REST).
 //    - Puedes probar desactivando temporalmente el firewall para ver si eso soluciona el problema.
-
 // 8. Si estás usando un proxy o VPN, asegúrate de que no esté bloqueando las conexiones
 //    - Algunos proxies o VPN pueden bloquear conexiones WebSocket o redirigir el tráfico de manera que no funcione correctamente.
 //    - Intenta desactivar cualquier proxy o VPN y prueba nuevamente.
-
 // 9. Verifica la configuración de tu router:
 //    - Asegúrate de que tu router no esté bloqueando las conexiones entrantes
 //      a los puertos que estás utilizando.

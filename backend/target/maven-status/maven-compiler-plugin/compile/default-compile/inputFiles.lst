@@ -1,9 +1,7 @@
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/api/HelloController.java
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/websocket/WebSocketConfig.java
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/websocket/ChatWebSocketController.java
-/home/asc/workspace/chat/backend/src/main/java/com/chatapp/config/CorsConfig.java
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/websocket/RedisConfig.java
-/home/asc/workspace/chat/backend/src/main/java/com/chatapp/config/SecurityConfig.java
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/websocket/RedisListenerConfig.java
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/api/MessageHistoryController.java
 /home/asc/workspace/chat/backend/src/main/java/com/chatapp/model/ChatMessage.java
