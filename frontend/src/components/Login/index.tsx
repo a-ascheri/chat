@@ -4,25 +4,89 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../../context/UserContext';
 import styles from './styles.module.scss';
 
 const Login: React.FC = () => {
-  
-  // [4.1] Estado local para el input del nombre de usuario
-  // Sintaxis: const [usernameInput, setUsernameInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [apiUrl, setApiUrl] = useState('');
   
-  // [4.2] Obtiene la función setUsername del contexto global de usuario
   const { setUsername } = useUser();
 
-  // [4.3] Maneja el submit del formulario de login
-  // Si el input no está vacío, actualiza el contexto global de usuario
-  const handleSubmit = (e: React.FormEvent) => {
+  // Usar rutas relativas que serán manejadas por el proxy de Next.js
+  useEffect(() => {
+    // Siempre usar la ruta relativa
+    const authUrl = '/api/auth/login';
+    console.log('Using relative URL with Next.js proxy:', authUrl);
+    setApiUrl(authUrl);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usernameInput.trim()) {
-      setUsername(usernameInput);
+    if (!usernameInput.trim()) return;
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Usar la URL configurada en el estado
+      console.log('Attempting login with URL:', apiUrl);
+      console.log('Username:', usernameInput.trim());
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: usernameInput.trim() }),
+        // Importante para CORS
+        credentials: 'include',
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      const data = await response.json();
+      console.log('Response data:', data);
+      
+      if (!response.ok) {
+        throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
+      }
+      
+      if (data.token) {
+        // Guardar token y datos de usuario en localStorage
+        localStorage.setItem('jwt', data.token);
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('sessionId', data.sessionId);
+        
+        if (data.userId) {
+          localStorage.setItem('userId', data.userId);
+        }
+        
+        console.log('Login successful, storing credentials:', {
+          username: data.username,
+          sessionId: data.sessionId,
+          userId: data.userId || 'not provided'
+        });
+        
+        // Actualizar contexto
+        setUsername(data.username);
+      } else {
+        throw new Error('No se recibió token del servidor');
+      }
+      
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error('Login error:', err);
+        setError(err.message || 'Error al conectar con el servidor');
+      } else {
+        setError('Error al conectar con el servidor');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,14 +94,18 @@ const Login: React.FC = () => {
   return (
     <div className={styles.loginContainer}>
       <h2>Login</h2>
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Usuario"
           value={usernameInput}
           onChange={e => setUsernameInput(e.target.value)}
+          disabled={loading}
         />
-        <button type="submit">Entrar</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Conectando...' : 'Entrar'}
+        </button>
       </form>
     </div>
   );

@@ -15,9 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-
 @RequestMapping("/api/messages")
-
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://localhost:3000", 
+    "http://172.23.234.53:3000",
+    "http://172.23.234.53:5173",
+    "https://TU_DOMINIO_FRONTEND.vercel.app"
+}, allowedHeaders = "*", allowCredentials = "true")
 public class MessageHistoryController {
     
     private final RedisTemplate<String, Object> redisTemplate;
